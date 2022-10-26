@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import F
 from django.db.models import QuerySet
+from django.utils.deconstruct import deconstructible
 from morango.models import UUIDField
 from morango.models.core import SyncSession
 
@@ -16,9 +17,13 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.fields import JSONField
 from kolibri.core.utils.cache import process_cache as cache
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
+from kolibri.utils.conf import OPTIONS
+
+# from jsonschema import validate
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
 
@@ -72,6 +77,43 @@ def app_is_enabled():
     return interface.enabled
 
 
+@deconstructible
+class JSON_Schema_Validator:
+    def __init__(self, schema) -> None:
+        pass
+
+
+extra_settings_schema = {
+    "type": "object",
+    "properties": {
+        "allow_download_on_mettered_connection": {"type": "boolean", "default": False},
+        "primary_storage_connection": {
+            "type": "string",
+            "default": OPTIONS["Paths"]["CONTENT_DIR"],
+        },
+        "secondary_storage_connections": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": [],
+        },
+        "enable_automatic_download": {"type": "boolean", "default": True},
+        "allow_learner_download_resources": {"type": "boolean", "default": False},
+        "set_limit_for_autodownload": {"type": "boolean", "default": False},
+        "limit_for_autodownload": {"type": "integer", "default": 0},
+    },
+}
+
+extra_settings_default_values = {
+    "allow_download_on_mettered_connection": False,
+    "primary_storage_connection": OPTIONS["Paths"]["CONTENT_DIR"],
+    "secondary_storage_connections": [],
+    "enable_automatic_download": True,
+    "allow_learner_download_resources": False,
+    "set_limit_for_autodownload": False,
+    "limit_for_autodownload": 0,
+}
+
+
 class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
@@ -110,6 +152,12 @@ class DeviceSettings(models.Model):
     allow_other_browsers_to_connect = models.BooleanField(default=app_is_enabled)
     # Is this a device that only synchronizes data about a subset of users?
     subset_of_users_device = models.BooleanField(default=False)
+
+    extra_settings = JSONField(
+        null=False,
+        validators=[JSON_Schema_Validator(extra_settings_schema)],
+        default=extra_settings_default_values,
+    )
 
     def save(self, *args, **kwargs):
         self.pk = 1
