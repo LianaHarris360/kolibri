@@ -92,6 +92,11 @@ extra_settings_schema = {
         "set_limit_for_autodownload": {"type": "boolean"},
         "limit_for_autodownload": {"type": "integer"},
     },
+    "required": [
+        "allow_download_on_mettered_connection",
+        "primary_storage_connection",
+        "enable_automatic_download",
+    ],
 }
 
 extra_settings_default_values = {
@@ -161,6 +166,52 @@ class DeviceSettings(models.Model):
         out = super(DeviceSettings, self).delete(*args, **kwargs)
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
         return out
+
+    @property
+    def allow_download_on_mettered_connection(self):
+        if self.extra_settings is not None:
+            return self.extra_settings.get(
+                "allow_download_on_mettered_connection", False
+            )
+        else:
+            return False
+
+    @allow_download_on_mettered_connection.setter
+    def allow_download_on_mettered_connection(self, value):
+        if self.extra_settings is None:
+            self.extra_settings = extra_settings_default_values
+        self.extra_settings["allow_download_on_mettered_connection"] = value
+        self.save()
+
+    @property
+    def primary_storage_connection(self):
+        if self.extra_settings is not None:
+            return self.extra_settings.get(
+                "primary_storage_connection", OPTIONS["Paths"]["CONTENT_DIR"]
+            )
+        else:
+            return OPTIONS["Paths"]["CONTENT_DIR"]
+
+    @primary_storage_connection.setter
+    def primary_storage_connection(self, value):
+        if self.extra_settings is None:
+            self.extra_settings = extra_settings_default_values
+        self.extra_settings["primary_storage_connection"] = value
+        self.save()
+
+    @property
+    def enable_automatic_download(self):
+        if self.extra_settings is not None:
+            return self.extra_settings.get("enable_automatic_download", True)
+        else:
+            return True
+
+    @enable_automatic_download.setter
+    def enable_automatic_download(self, value):
+        if self.extra_settings is None:
+            self.extra_settings = extra_settings_default_values
+        self.extra_settings["enable_automatic_download"] = value
+        self.save()
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
