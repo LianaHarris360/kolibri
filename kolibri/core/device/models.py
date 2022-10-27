@@ -6,7 +6,6 @@ from django.conf import settings
 from django.db import models
 from django.db.models import F
 from django.db.models import QuerySet
-from django.utils.deconstruct import deconstructible
 from morango.models import UUIDField
 from morango.models.core import SyncSession
 
@@ -19,11 +18,10 @@ from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.cache import process_cache as cache
+from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.conf import OPTIONS
-
-from jsonschema import validate
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
 
@@ -77,36 +75,22 @@ def app_is_enabled():
     return interface.enabled
 
 
-@deconstructible
-class JSON_Schema_Validator:
-    def __init__(self, schema) -> None:
-        validate(instance={"allow_download_on_mettered_connection" : False,
-                           "primary_storage_connection" : OPTIONS["Paths"]["CONTENT_DIR"],
-                           "secondary_storage_connections": [],
-                           "enable_automatic_download": True,
-                           "allow_learner_download_resources": False,
-                           "set_limit_for_autodownload": True,
-                           "limit_for_autodownload": 0,
-                           }, schema=schema)
-
-
 extra_settings_schema = {
     "type": "object",
+    "additionalProperties": False,
     "properties": {
-        "allow_download_on_mettered_connection": {"type": "boolean", "default": False},
+        "allow_download_on_mettered_connection": {"type": "boolean"},
         "primary_storage_connection": {
             "type": "string",
-            "default": OPTIONS["Paths"]["CONTENT_DIR"],
         },
         "secondary_storage_connections": {
             "type": "array",
             "items": {"type": "string"},
-            "default": [],
         },
-        "enable_automatic_download": {"type": "boolean", "default": True},
-        "allow_learner_download_resources": {"type": "boolean", "default": False},
-        "set_limit_for_autodownload": {"type": "boolean", "default": False},
-        "limit_for_autodownload": {"type": "integer", "default": 0},
+        "enable_automatic_download": {"type": "boolean"},
+        "allow_learner_download_resources": {"type": "boolean"},
+        "set_limit_for_autodownload": {"type": "boolean"},
+        "limit_for_autodownload": {"type": "integer"},
     },
 }
 
