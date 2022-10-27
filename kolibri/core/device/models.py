@@ -23,7 +23,7 @@ from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.conf import OPTIONS
 
-# from jsonschema import validate
+from jsonschema import validate
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
 
@@ -80,7 +80,14 @@ def app_is_enabled():
 @deconstructible
 class JSON_Schema_Validator:
     def __init__(self, schema) -> None:
-        pass
+        validate(instance={"allow_download_on_mettered_connection" : False,
+                           "primary_storage_connection" : OPTIONS["Paths"]["CONTENT_DIR"],
+                           "secondary_storage_connections": [],
+                           "enable_automatic_download": True,
+                           "allow_learner_download_resources": False,
+                           "set_limit_for_autodownload": True,
+                           "limit_for_autodownload": 0,
+                           }, schema=schema)
 
 
 extra_settings_schema = {
