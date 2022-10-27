@@ -7,6 +7,7 @@ from django.db import models
 
 import kolibri.core.device.models
 import kolibri.core.fields
+import kolibri.core.utils.validators
 from kolibri.utils.conf import OPTIONS
 
 
@@ -26,43 +27,27 @@ class Migration(migrations.Migration):
                     "allow_learner_download_resources": False,
                     "enable_automatic_download": True,
                     "limit_for_autodownload": 0,
-                    "primary_storage_connection": OPTIONS["Paths"]["CONTENT_DIR"],
+                    "primary_storage_connection": "/home/jose/.kolibri/content",
                     "secondary_storage_connections": [],
                     "set_limit_for_autodownload": False,
                 },
                 validators=[
-                    kolibri.core.device.models.JSON_Schema_Validator(
+                    kolibri.core.utils.validators.JSON_Schema_Validator(
                         {
+                            "additionalProperties": False,
                             "properties": {
                                 "allow_download_on_mettered_connection": {
-                                    "default": False,
-                                    "type": "boolean",
+                                    "type": "boolean"
                                 },
-                                "allow_learner_download_resources": {
-                                    "default": False,
-                                    "type": "boolean",
-                                },
-                                "enable_automatic_download": {
-                                    "default": True,
-                                    "type": "boolean",
-                                },
-                                "limit_for_autodownload": {
-                                    "default": 0,
-                                    "type": "integer",
-                                },
-                                "primary_storage_connection": {
-                                    "default": OPTIONS["Paths"]["CONTENT_DIR"],
-                                    "type": "string",
-                                },
+                                "allow_learner_download_resources": {"type": "boolean"},
+                                "enable_automatic_download": {"type": "boolean"},
+                                "limit_for_autodownload": {"type": "integer"},
+                                "primary_storage_connection": {"type": "string"},
                                 "secondary_storage_connections": {
-                                    "default": [],
                                     "items": {"type": "string"},
                                     "type": "array",
                                 },
-                                "set_limit_for_autodownload": {
-                                    "default": False,
-                                    "type": "boolean",
-                                },
+                                "set_limit_for_autodownload": {"type": "boolean"},
                             },
                             "type": "object",
                         }
