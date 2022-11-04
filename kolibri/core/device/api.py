@@ -15,6 +15,8 @@ from django.utils.translation import get_language
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from morango.constants import transfer_statuses
 from morango.models import InstanceIDModel
 from morango.models import TransferSession
@@ -56,6 +58,8 @@ from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.filesystem import check_is_directory
+from kolibri.utils.filesystem import get_path_permission
 from kolibri.utils.server import get_status_from_pid_file
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -398,3 +402,27 @@ class RemoteFacilitiesViewset(views.APIView):
                 return Response({})
         except Exception as e:
             raise ValidationError(detail=str(e))
+
+
+class PathPermissionView(views.APIView):
+
+    permission_classes = (UserHasAnyDevicePermissions,)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "path",
+                openapi.IN_QUERY,
+                description="path to check permissions for",
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def get(self, request):
+        pathname = request.query_params.get("path", OPTIONS["Paths"]["CONTENT_DIR"])
+        return Response(
+            {
+                "writable": get_path_permission(pathname),
+                "directory": check_is_directory(pathname),
+            }
+        )
