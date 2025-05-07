@@ -69,8 +69,20 @@
           :emptyMessage="emptyMessageForItems(facilityUsers, search)"
         >
           <template #header="{ header, colIndex }">
-            <span :class="{ visuallyhidden: colIndex === 5 }">{{ header.label }}</span>
-            <span v-if="colIndex === 2">
+            <span :class="{ visuallyhidden: colIndex === 0 || colIndex === 6 }">{{
+              header.label
+            }}</span>
+            <span v-if="colIndex === 0">
+              <KCheckbox
+                :checked="allAreSelected"
+                :indeterminate="allIsIndeterminate"
+                :disabled="!facilityUsers || facilityUsers.length === 0"
+                class="select-all"
+                :style="{ color: $themeTokens.annotation }"
+                @change="selectAll($event)"
+              />
+            </span>
+            <span v-if="colIndex === 3">
               <CoreInfoIcon
                 class="tooltip"
                 :iconAriaLabel="coreString('identifierAriaLabel')"
@@ -79,7 +91,20 @@
             </span>
           </template>
           <template #cell="{ content, colIndex, row }">
-            <span v-if="colIndex === 0">
+            <span
+              v-if="colIndex === 0"
+              class="core-table-button-col"
+            >
+              <KCheckbox
+                :checked="userIsSelected(content.id)"
+                @change="selectUser(content.id, $event)"
+              />
+              <span class="visuallyhidden">
+                {{ 'Select user' }}
+                {{ content.full_name }}
+              </span>
+            </span>
+            <span v-else-if="colIndex === 1">
               <KLabeledIcon
                 icon="person"
                 :label="content"
@@ -87,24 +112,24 @@
               />
               <UserTypeDisplay
                 aria-hidden="true"
-                :userType="row[5].kind"
+                :userType="row[6].kind"
                 :omitLearner="true"
                 class="role-badge"
                 data-test="userRoleBadge"
                 :class="$computedClass(userRoleBadgeStyle)"
               />
             </span>
-            <span v-else-if="colIndex === 2">
+            <span v-else-if="colIndex === 3">
               <KOptionalText :text="content ? content : ''" />
             </span>
-            <span v-else-if="colIndex === 3">
+            <span v-else-if="colIndex === 4">
               <GenderDisplayText :gender="content" />
             </span>
-            <span v-else-if="colIndex === 4">
+            <span v-else-if="colIndex === 5">
               <BirthYearDisplayText :birthYear="content" />
             </span>
             <span
-              v-else-if="colIndex === 5"
+              v-else-if="colIndex === 6"
               class="core-table-button-col"
             >
               <KButton
@@ -160,6 +185,7 @@
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import difference from 'lodash/difference';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -199,6 +225,7 @@
       return {
         selectedUser: null,
         modalShown: null,
+        selectedUsers: [],
       };
     },
     computed: {
@@ -207,6 +234,13 @@
       Modals: () => Modals,
       tableHeaders() {
         return [
+          {
+            label: 'Select all',
+            dataType: 'undefined',
+            minWidth: '50px',
+            width: '10%',
+            columnId: 'userActionCheckboxes',
+          },
           {
             label: this.coreString('fullNameLabel'),
             dataType: 'string',
@@ -254,6 +288,7 @@
       tableRows() {
         return this.facilityUsers.map(user => {
           return [
+            user,
             user.full_name,
             user.username,
             user.id_number,
@@ -339,6 +374,19 @@
           });
         },
       },
+      allAreSelected() {
+        return (
+          Boolean(this.facilityUsers && this.facilityUsers.length) &&
+          this.facilityUsers.every(user => this.selectedUsers.includes(user.id))
+        );
+      },
+      allIsIndeterminate() {
+        return (
+          Boolean(this.facilityUsers && this.facilityUsers.length) &&
+          !this.allAreSelected &&
+          this.facilityUsers.some(user => this.selectedUsers.includes(user.id))
+        );
+      },
     },
     created() {
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
@@ -406,6 +454,35 @@
             page: null,
           }),
         });
+      },
+      userIsSelected(id) {
+        // returns true if user id is within array of selected users
+        return this.selectedUsers.includes(id);
+      },
+      selectUser(id) {
+        if (this.userIsSelected(id)) {
+          // If the id is already selected, we remove it from the selectedUsers array
+          this.selectedUsers = this.selectedUsers.filter(selectedId => selectedId !== id);
+        } else {
+          // Otherwise, we are adding the id to what we emit
+          this.selectedUsers.push(id);
+        }
+        return this.$emit('input', this.selectedUsers);
+      },
+      selectAll() {
+        const currentUsers = this.facilityUsers.map(user => user.id);
+        if (this.allAreSelected) {
+          // All of them are already selected, so emit the value without currently shown users
+          this.selectedUsers = difference(this.selectedUsers, currentUsers);
+          return this.$emit('input', this.selectedUsers);
+        } else {
+          // Some or none of them are selected, so emit value including all of those which were not
+          // already selected
+          this.selectedUsers = this.selectedUsers.concat(
+            currentUsers.filter(item => this.selectedUsers.indexOf(item) < 0),
+          );
+          return this.$emit('input', this.selectedUsers);
+        }
       },
     },
     $trs: {
