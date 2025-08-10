@@ -185,7 +185,7 @@
         />
       </SidePanelModal>
       <TooltipTour
-        v-if="tourActive && isTourActive('LibraryPage')"
+        v-if="tourActive && !isLearner && isTourActive('LibraryPage')"
         page="LibraryPage"
         @tourEnded="endTour('LibraryPage')"
       />
@@ -272,9 +272,8 @@
         isCoach,
         isAdmin,
         isSuperuser,
+        isLearner,
         user_id,
-        canManageContent,
-        isLearnerOnlyImport,
       } = useUser();
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
@@ -435,8 +434,7 @@
         rootNodesLoading,
         rootNodes,
         isUserLoggedIn,
-        canManageContent,
-        isLearnerOnlyImport,
+        isLearner,
         tourActive,
         isTourActive,
         startTour,
@@ -474,10 +472,7 @@
       welcomeModalVisible() {
         return (
           this.welcomeModalVisibleState &&
-          window.localStorage.getItem(welcomeDismissalKey) !== 'true' &&
-          !(this.rootNodes.length > 0) &&
-          this.canManageContent &&
-          !this.isLearnerOnlyImport
+          window.localStorage.getItem(`${welcomeDismissalKey}-${this.userId}`) !== 'true'
         );
       },
       showOtherLibraries() {
@@ -566,7 +561,7 @@
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
-      if (window.localStorage.getItem(welcomeDismissalKey) !== 'true') {
+      if (window.sessionStorage.getItem(`${welcomeDismissalKey}-${this.userId}`) !== 'true') {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
 
@@ -584,7 +579,7 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.localStorage.setItem(welcomeDismissalKey, true);
+        window.localStorage.setItem(`${welcomeDismissalKey}-${this.userId}`, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
         this.startTour('LibraryPage');
       },
