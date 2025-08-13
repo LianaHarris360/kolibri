@@ -27,6 +27,7 @@
   import { kolibriOnboardingGuideStrings } from 'kolibri/uiText/kolibriOnboardingGuideStrings';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useLearnerResources from '../../../../../../kolibri/plugins/learn/assets/src/composables/useLearnerResources';
 
   export default {
     name: 'WelcomeModal',
