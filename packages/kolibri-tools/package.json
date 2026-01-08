@@ -15,7 +15,7 @@
     "kolibri-tools": "./lib/cli.js"
   },
   "dependencies": {
-    "chalk": "4.1.2",
+    "chalk": "5.6.2",
     "commander": "^14.0.2",
     "fast-glob": "^3.3.3",
     "jscodeshift": "^17.3.0",
