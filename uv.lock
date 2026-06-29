@@ -969,15 +969,11 @@ wheels = [
 
 [[package]]
 name = "fake-factory"
-version = "0.5.7"
+version = "9999.9.9"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-dateutil" },
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d7/09/96d581326395b5829df9fb44e1d9e50d445160d5d0e5e5247f26fa021b75/fake-factory-0.5.7.tar.gz", hash = "sha256:405db32eaea36eb962e6130e4d0087762d50018b14237b02c8c4fe966d5615b2", size = 520896, upload-time = "2016-03-11T18:46:00.9Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/fc/881455cabc4e82ff40cc93da1b8b7114a95bc7369d1eef11c7a5dfc6ace2/fake-factory-9999.9.9.tar.gz", hash = "sha256:f5bd18deb22ad8cb4402513c025877bc6b50de58902d686b6b21ba8981dce260", size = 2024, upload-time = "2016-12-16T16:17:37.784Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/26/f897f88f41d2d43ae6e942ea23452abb1af2f066697bb931c7f5df167fa6/fake_factory-0.5.7-py2.py3-none-any.whl", hash = "sha256:608b84d746781781cacab5fa3f7a52fece46047b03f4e8619ade3ce26d0c84f2", size = 484317, upload-time = "2016-03-11T18:46:17.944Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/b7/098f441de2ba22be306b42f7d57f09ffd1240208c45dd0c6a30c793a240d/fake_factory-9999.9.9-py2.py3-none-any.whl", hash = "sha256:60c64a953c03e29fbee6b59fcb700c86a313778d68dc5816fc560ef515019d77", size = 556518, upload-time = "2016-12-16T16:17:41.95Z" },
 ]
 
 [[package]]
@@ -2837,7 +2833,7 @@ dev = [
     { name = "djangorestframework", specifier = "==3.14.0" },
     { name = "drf-yasg", marker = "python_full_version >= '3.8'", specifier = "==1.21.7" },
     { name = "factory-boy", specifier = "==2.7.0" },
-    { name = "fake-factory", specifier = "==0.5.7" },
+    { name = "fake-factory", specifier = "==9999.9.9" },
     { name = "html5lib", specifier = "==1.1" },
     { name = "idna", specifier = "==3.7" },
     { name = "ifaddr", specifier = "==0.1.7" },
@@ -2969,7 +2965,7 @@ test = [
     { name = "django-sortedm2m", specifier = "==3.1.1" },
     { name = "djangorestframework", specifier = "==3.14.0" },
     { name = "factory-boy", specifier = "==2.7.0" },
-    { name = "fake-factory", specifier = "==0.5.7" },
+    { name = "fake-factory", specifier = "==9999.9.9" },
     { name = "html5lib", specifier = "==1.1" },
     { name = "idna", specifier = "==3.7" },
     { name = "ifaddr", specifier = "==0.1.7" },
